@@ -1,0 +1,36 @@
+    # 文件名: .github/workflows/python-ci.yml
+    name: Python CI (代码质量检查) # 工作流的名称，会显示在 GitHub Actions 标签页
+
+    on:
+      push:
+        branches: [ "dev" ] # 当推送到 main 分支时触发 (如果你的主分支是 master，请修改)
+      pull_request:
+        branches: [ "dev" ] # 当向 main 分支创建或更新 Pull Request 时触发
+
+    jobs:
+      lint: # 定义一个名为 'lint' 的任务
+        runs-on: ubuntu-latest # 指定任务运行在最新的 Ubuntu 虚拟机环境上
+
+        steps: # 任务执行的步骤
+        - name: 检出代码
+          # 使用官方的 checkout action 来获取仓库代码
+          uses: actions/checkout@v4
+
+        - name: 设置 Python 环境
+          # 使用官方的 setup-python action 来安装指定版本的 Python
+          uses: actions/setup-python@v5
+          with:
+            python-version: '3.10' # 你可以根据需要选择 Python 版本, e.g., '3.9', '3.11'
+
+        - name: 安装依赖和 Linter
+          run: | # 执行 shell 命令
+            python -m pip install --upgrade pip
+            # 注意：这里的路径是相对于仓库根目录的
+            pip install -r rabbitmq_demo/requirements.txt
+            pip install ruff # 安装 Ruff Linter (一个快速的 Python Linter)
+
+        - name: 运行 Linter (Ruff)
+          run: |
+            # 运行 Ruff 检查 rabbitmq_demo 目录下的代码
+            # --output-format=github 会让错误在 Pull Request 中更好地显示
+            ruff check rabbitmq_demo/ --output-format=github
