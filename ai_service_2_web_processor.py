@@ -1,5 +1,4 @@
 # AI 服务 2: 处理网页内容
-import pika
 import json
 import logging
 import re
@@ -78,7 +77,7 @@ def callback(ch, method, properties, body):
     except json.JSONDecodeError:
         logging.error(f"解析网页内容 JSON 失败: {body.decode('utf-8')}")
         ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
-        logging.warning(f"已拒绝格式错误的网页内容消息。")
+        logging.warning("已拒绝格式错误的网页内容消息。")
     except Exception as e:
         logging.error(f"处理推文 {source_tweet_id_for_log} 的网页内容时出错: {body.decode('utf-8', errors='ignore')[:100]}... 错误: {e}", exc_info=True)
         ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
@@ -86,11 +85,13 @@ def callback(ch, method, properties, body):
 
 def main():
     connection = get_rabbitmq_connection()
-    if not connection: return
+    if not connection:
+        return
 
     channel = create_channel(connection)
     if not channel:
-        if connection.is_open: connection.close()
+        if connection.is_open:
+            connection.close()
         return
 
     # 声明必要的队列

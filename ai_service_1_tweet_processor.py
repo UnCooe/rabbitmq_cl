@@ -1,5 +1,4 @@
 # AI 服务 1: 处理推文
-import pika
 import json
 import logging
 import re
@@ -83,7 +82,7 @@ def callback(ch, method, properties, body):
         logging.error(f"解析 JSON 失败: {body.decode('utf-8')}")
         # 拒绝格式错误的消息，不重新入队
         ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
-        logging.warning(f"已拒绝格式错误的消息。")
+        logging.warning("已拒绝格式错误的消息。")
     except Exception as e:
         logging.error(f"处理消息 ID {tweet_id_for_log} 时出错: {body.decode('utf-8', errors='ignore')}. 错误: {e}", exc_info=True)
         # 发送否定确认，不重新入队以避免持久性错误导致的处理循环
@@ -92,11 +91,13 @@ def callback(ch, method, properties, body):
 
 def main():
     connection = get_rabbitmq_connection()
-    if not connection: return
+    if not connection:
+        return
 
     channel = create_channel(connection)
     if not channel:
-        if connection.is_open: connection.close()
+        if connection.is_open:
+            connection.close()
         return
 
     # 声明必要的队列
