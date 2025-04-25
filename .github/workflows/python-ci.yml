@@ -26,7 +26,7 @@
           run: | # 执行 shell 命令
             python -m pip install --upgrade pip
             # 注意：这里的路径是相对于仓库根目录的
-            pip install -r rabbitmq_demo/requirements.txt
+            pip install -r requirements.txt
             pip install ruff # 安装 Ruff Linter (一个快速的 Python Linter)
 
         - name: 运行 Linter (Ruff)
