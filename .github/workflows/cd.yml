@@ -1,9 +1,10 @@
 # .github/workflows/cd.yml
-name: Continuous Deployment (构建并部署到服务器)
+name: Continuous Deployment (构建并部署)
 
 on:
   push:
-    branches: [ "dev" ] # 仅在推送到 dev 分支时触发
+    # 同时监听 dev 和 main 分支的推送
+    branches: [ "dev", "main" ] # <---- 修改点 1: 添加 main 分支
 
 jobs:
   build-and-push:
@@ -25,6 +26,11 @@ jobs:
         run: |
           REPO=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
           TAG="ghcr.io/${REPO}:latest"
+          # 如果是 dev 分支，可以考虑添加 dev 标签，例如 :dev
+          # if [ "${{ github.ref }}" = "refs/heads/dev" ]; then
+          #   TAG="ghcr.io/${REPO}:dev"
+          # fi
+          echo "Using Docker tag: ${TAG}" # 添加日志方便调试
           echo "docker_tag=${TAG}" >> $GITHUB_OUTPUT # 设置步骤输出
 
       - name: 登录到 GitHub Container Registry
@@ -40,24 +46,25 @@ jobs:
       - name: 构建并推送 Docker 镜像
         uses: docker/build-push-action@v5
         with:
-          context: . # 构建上下文是仓库根目录
-          file: ./Dockerfile # Dockerfile 在仓库根目录
+          context: .
+          file: ./Dockerfile
           push: true
-          # 使用上一步生成的小写标签
-          tags: ${{ steps.prep.outputs.docker_tag }}
-          cache-from: type=gha # 启用 GitHub Actions 构建缓存
+          tags: ${{ steps.prep.outputs.docker_tag }} # 使用准备好的标签
+          cache-from: type=gha
           cache-to: type=gha,mode=max
 
   deploy:
-    name: 部署到服务器
+    name: 部署到远程服务器
     needs: build-and-push # 依赖上一个 job 完成
+    # <---- 修改点 2: 添加条件判断，仅在 main 分支运行时执行此 job ---->
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     steps:
       - name: 通过 SSH 部署
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.DEPLOY_SERVER_HOST }}
+          host: ${{ secrets.DEPLOY_SERVER_HOST }} # 确保 main 分支触发时 Secrets 已配置
           username: ${{ secrets.DEPLOY_SERVER_USER }}
           key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
           script: |
