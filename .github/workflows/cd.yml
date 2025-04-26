@@ -35,7 +35,7 @@ jobs:
           file: ./Dockerfile # Dockerfile 在仓库根目录
           push: true
           # 使用 ghcr.io/用户名/仓库名:latest 格式
-          tags: ghcr.io/${{ github.repository }}:latest
+      tags: ghcr.io/${{ github.repository_owner }}/rabbitmq-cl:latest
           cache-from: type=gha # 启用 GitHub Actions 构建缓存
           cache-to: type=gha,mode=max
 

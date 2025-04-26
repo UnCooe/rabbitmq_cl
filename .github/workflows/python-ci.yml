@@ -34,3 +34,5 @@
             # 运行 Ruff 检查 rabbitmq_demo 目录下的代码
             # --output-format=github 会让错误在 Pull Request 中更好地显示
             ruff check . --output-format=github
+      
+            
