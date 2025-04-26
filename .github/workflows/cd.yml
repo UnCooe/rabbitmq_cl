@@ -67,6 +67,7 @@ jobs:
           host: ${{ secrets.DEPLOY_SERVER_HOST }} # 确保 main 分支触发时 Secrets 已配置
           username: ${{ secrets.DEPLOY_SERVER_USER }}
           key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+          timeout: 300s # <---- 添加此行，设置超时为 300 秒 ---->
           script: |
             # 登录到 GitHub Container Registry (如果镜像是私有的)
             # 如果 GITHUB_TOKEN 权限足够，可能不需要 CR_PAT
