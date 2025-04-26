@@ -72,9 +72,13 @@ jobs:
             # 如果 GITHUB_TOKEN 权限足够，可能不需要 CR_PAT
             # echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-            # 定义镜像名称 (使用来自 build job 的输出)
+            # 定义镜像、容器和网络名称
             IMAGE_NAME="${{ needs.build-and-push.outputs.docker_tag }}"
-            CONTAINER_NAME="rabbitmq_demo_app" # 给你的应用容器起个名字
+            CONTAINER_NAME="rabbitmq_demo_app"
+            NETWORK_NAME="demo-net" # 确保和手动创建的网络名称一致
+
+            # 确保网络存在 (如果手动创建失败或被删除，这里会尝试再次创建)
+            docker network create $NETWORK_NAME || true
 
             # 拉取最新镜像
             docker pull $IMAGE_NAME
@@ -85,11 +89,9 @@ jobs:
             # 删除旧容器 (如果存在)
             docker rm $CONTAINER_NAME || true
 
-            # 启动新容器
-            # --restart always 保证容器意外退出后会自动重启
-            # -e RABBITMQ_HOST=... 使用 Secret 设置 RabbitMQ 地址
-            # --network=... (可选) 如果需要连接到特定 Docker 网络
+            # 启动新容器，并连接到 demo-net 网络
             docker run -d --name $CONTAINER_NAME --restart always \
+              --network $NETWORK_NAME \
               -e RABBITMQ_HOST=${{ secrets.RABBITMQ_HOST }} \
               $IMAGE_NAME
 
