@@ -3,7 +3,7 @@ name: Continuous Deployment (构建并部署到服务器)
 
 on:
   push:
-    branches: [ "dev" ] # 仅在推送到 main 分支时触发
+    branches: [ "dev" ] # 仅在推送到 dev 分支时触发
 
 jobs:
   build-and-push:
@@ -34,8 +34,8 @@ jobs:
           context: . # 构建上下文是仓库根目录
           file: ./Dockerfile # Dockerfile 在仓库根目录
           push: true
-          # 使用 ghcr.io/用户名/仓库名:latest 格式
-      tags: ghcr.io/${{ github.repository_owner }}/rabbitmq-cl:latest
+          # 修正缩进，并使用标准格式 ghcr.io/用户名/仓库名:latest
+          tags: ghcr.io/${{ github.repository }}:latest
           cache-from: type=gha # 启用 GitHub Actions 构建缓存
           cache-to: type=gha,mode=max
 
@@ -56,7 +56,7 @@ jobs:
             # 如果 GITHUB_TOKEN 权限足够，可能不需要 CR_PAT
             # echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-            # 定义镜像名称和容器名称
+            # 定义镜像名称 (与 build job 中的 tags 一致)
             IMAGE_NAME="ghcr.io/${{ github.repository }}:latest"
             CONTAINER_NAME="rabbitmq_demo_app" # 给你的应用容器起个名字
 
