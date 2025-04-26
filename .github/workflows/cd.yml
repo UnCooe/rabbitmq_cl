@@ -4,7 +4,7 @@ name: Continuous Deployment (构建并部署)
 on:
   push:
     # 同时监听 dev 和 main 分支的推送
-    branches: [ "dev", "main" ] # <---- 修改点 1: 添加 main 分支
+    branches: [ "dev", "master" ] # <---- 修改点 1: 添加 main 分支
 
 jobs:
   build-and-push:
