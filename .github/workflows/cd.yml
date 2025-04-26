@@ -57,7 +57,7 @@ jobs:
     name: 部署到远程服务器
     needs: build-and-push # 依赖上一个 job 完成
     # <---- 修改点 2: 添加条件判断，仅在 main 分支运行时执行此 job ---->
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
 
     steps:
