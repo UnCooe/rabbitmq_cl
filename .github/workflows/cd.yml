@@ -5,7 +5,7 @@ on:
   push:
     # 同时监听 dev 和 main 分支的推送
     branches: [ "dev", "master" ] # <---- 修改点 1: 添加 main 分支
-#
+
 jobs:
   build-and-push:
     name: 构建并推送 Docker 镜像
